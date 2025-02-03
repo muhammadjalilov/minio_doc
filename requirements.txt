@@ -1,0 +1,12 @@
+argon2-cffi==23.1.0
+argon2-cffi-bindings==21.2.0
+asgiref==3.8.1
+certifi==2025.1.31
+cffi==1.17.1
+Django==5.1.5
+minio==7.2.15
+pycparser==2.22
+pycryptodome==3.21.0
+sqlparse==0.5.3
+typing_extensions==4.12.2
+urllib3==2.3.0
