@@ -1,43 +1,34 @@
-# file_uploader.py MinIO Python SDK example
 from minio import Minio
-from minio.error import S3Error
+from django.conf import settings
+
+# Подключение к MinIO
+minio_client = Minio(
+    settings.MINIO_ENDPOINT.replace("http://", "").replace("https://", ""),
+    access_key=settings.MINIO_ACCESS_KEY,
+    secret_key=settings.MINIO_SECRET_KEY,
+    secure=False,  # Убираем SSL, если MinIO работает без HTTPS
+)
 
 
-def main():
-    # Create a client with the MinIO server playground, its access key
-    # and secret key.
-    client = Minio("play.min.io",
-               access_key="Q3AM3UQ867SPQQA43P2F",
-               secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
-               )
-
-    # The file to upload, change this path if needed
-    source_file = "media_files/images.png"
-
-    # The destination bucket and filename on the MinIO server
-    bucket_name = "python-test-bucket"
-    destination_file = "image.png"
-
-    # Make the bucket if it doesn't exist.
-    found = client.bucket_exists(bucket_name)
-    if not found:
-        client.make_bucket(bucket_name)
-        print("Created bucket", bucket_name)
-    else:
-        print("Bucket", bucket_name, "already exists")
-
-    # Upload the file, renaming it in the process
-    client.fput_object(
-        bucket_name, destination_file, source_file,
+# Загрузка файла
+def upload_file(file, file_name):
+    create_bucket()
+    minio_client.put_object(
+        settings.MINIO_BUCKET_NAME,
+        file_name,
+        file,
+        length=-1,
+        part_size=10 * 1024 * 1024,
     )
-    print(
-        source_file, "successfully uploaded as object",
-        destination_file, "to bucket", bucket_name,
-    )
+    return f"http://127.0.0.1:9001/browser/{settings.MINIO_BUCKET_NAME}/{file_name}"
 
 
-if __name__ == "__main__":
-    try:
-        main()
-    except S3Error as exc:
-        print("error occurred.", exc)
+# Создание бакета, если он не существует
+def create_bucket():
+    if not minio_client.bucket_exists(settings.MINIO_BUCKET_NAME):
+        minio_client.make_bucket(settings.MINIO_BUCKET_NAME)
+
+
+# Получение ссылки на файл
+def get_file_url(file_name):
+    return minio_client.presigned_get_object(settings.MINIO_BUCKET_NAME, file_name)
