@@ -20,7 +20,7 @@ cd minio_doc
 ### Environment Variables
 Create a `.env` file in the project root and configure the necessary environment variables:
 ```env
-MINIO_ENDPOINT="http://127.0.0.1:9000"
+MINIO_ENDPOINT="http://minio:9000"
 MINIO_ACCESS_KEY=minio
 MINIO_SECRET_KEY=minio123
 MINIO_BUCKET_NAME="documents"
